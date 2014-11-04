@@ -105,6 +105,8 @@ if ($is_editor) {
         $('input[name=group_submissions]').click(changeAssignLabel);
         $('input[id=assign_button_some]').click(ajaxAssignees);        
         $('input[id=assign_button_all]').click(hideAssignees);
+        $('input[name=auto_judge]').click(changeAutojudgeScenariosVisibility);
+
         function hideAssignees()
         {
             $('#assignees_tbl').hide();
@@ -149,6 +151,13 @@ if ($is_editor) {
                 $('#assign_box').find('option').remove().end().append(select_content);
             });
         }
+    function changeAutojudgeScenariosVisibility() {
+      if($(this).is(':checked')) {
+        $(this).parent().find('table').show();
+      } else {
+          $(this).parent().find('table').hide();
+      }
+    }
     });
     
     </script>";    
@@ -328,13 +337,14 @@ function add_assignment() {
     $assigned_to = filter_input(INPUT_POST, 'ingroup', FILTER_VALIDATE_INT, FILTER_REQUIRE_ARRAY);
     $secret = uniqid('');
     $auto_judge = filter_input(INPUT_POST, 'auto_judge', FILTER_VALIDATE_INT);
+    $auto_judge_scenarios = serialize($_POST['auto_judge_scenarios']);
 
     if ($assign_to_specific == 1 && empty($assigned_to)) {
         $assign_to_specific = 0;
     }
     if (@mkdir("$workPath/$secret", 0777) && @mkdir("$workPath/admin_files/$secret", 0777, true)) {       
-        $id = Database::get()->query("INSERT INTO assignment (course_id, title, description, deadline, late_submission, comments, submission_date, secret_directory, group_submissions, max_grade, assign_to_specific, auto_judge) "
-                . "VALUES (?d, ?s, ?s, ?t, ?d, ?s, ?t, ?s, ?d, ?d, ?d, ?d)", $course_id, $title, $desc, $deadline, $late_submission, '', date("Y-m-d H:i:s"), $secret, $group_submissions, $max_grade, $assign_to_specific, $auto_judge)->lastInsertID;
+        $id = Database::get()->query("INSERT INTO assignment (course_id, title, description, deadline, late_submission, comments, submission_date, secret_directory, group_submissions, max_grade, assign_to_specific, auto_judge, auto_judge_scenarios) "
+                . "VALUES (?d, ?s, ?s, ?t, ?d, ?s, ?t, ?s, ?d, ?d, ?d, ?d, ?s)", $course_id, $title, $desc, $deadline, $late_submission, '', date("Y-m-d H:i:s"), $secret, $group_submissions, $max_grade, $assign_to_specific, $auto_judge, $auto_judge_scenarios)->lastInsertID;
         $secret = work_secret($id);
         if ($id) {
             $local_name = uid_to_name($uid);
@@ -422,10 +432,11 @@ function submit_work($id, $on_behalf_of = null) {
         }
     } //checks for submission validity end here
     
-    $row = Database::get()->querySingle("SELECT title, group_submissions FROM assignment WHERE course_id = ?d AND id = ?d", $course_id, $id, $auto_judge);
+    $row = Database::get()->querySingle("SELECT title, group_submissions, auto_judge, auto_judge_scenarios FROM assignment WHERE course_id = ?d AND id = ?d", $course_id, $id, $auto_judge);
     $title = q($row->title);
     $group_sub = $row->group_submissions;
     $auto_judge = $row->auto_judge;
+    $auto_judge_scenarios = $auto_judge == true ? unserialize($row->$auto_judge_scenarios) : null;
     $nav[] = $works_url;
     $nav[] = array('url' => "$_SERVER[SCRIPT_NAME]?id=$id", 'name' => $title);
 
@@ -528,25 +539,31 @@ function submit_work($id, $on_behalf_of = null) {
         // Auto-judge: Send file to hackearth
         global $hackerEarthKey;
         $content = file_get_contents("$workPath/$filename");
-        //set POST variables
-        $url = 'http://api.hackerearth.com/code/run/';
-        $fields = array('client_secret' => $hackerEarthKey, 'source' => $content, 'lang' => 'PYTHON');
-        //url-ify the data for the POST
-        foreach($fields as $key=>$value) { $fields_string .= $key.'='.$value.'&'; }
-        rtrim($fields_string, '&');
-        //open connection
-        $ch = curl_init();
-        //set the url, number of POST vars, POST data
-        curl_setopt($ch,CURLOPT_URL, $url);
-        curl_setopt($ch,CURLOPT_POST, count($fields));
-        curl_setopt($ch,CURLOPT_POSTFIELDS, $fields_string);
-        curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
-        //execute post
-        $result = curl_exec($ch);
-        $result = json_decode($result, true);
-        $result['run_status']['output'] = trim($result['run_status']['output']);
+        //Run scenario and count how many passed
+        $passed = 0;
+        foreach($auto_judge_scenarios as $curScenario) {
+          //set POST variables
+          $url = 'http://api.hackerearth.com/code/run/';
+          $fields = array('client_secret' => $hackerEarthKey, 'source' => $content, 'lang' => 'PYTHON');
+          //url-ify the data for the POST
+          foreach($fields as $key=>$value) { $fields_string .= $key.'='.$value.'&'; }
+          rtrim($fields_string, '&');
+          //open connection
+          $ch = curl_init();
+          //set the url, number of POST vars, POST data
+          curl_setopt($ch,CURLOPT_URL, $url);
+          curl_setopt($ch,CURLOPT_POST, count($fields));
+          curl_setopt($ch,CURLOPT_POSTFIELDS, $fields_string);
+          curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
+          //execute post
+          $result = curl_exec($ch);
+          $result = json_decode($result, true);
+          $result['run_status']['output'] = trim($result['run_status']['output']);
+          if $result['run_status']['output'] == $curScenario['output']) { $passed++; } //Increment if passed
+        }
         // Add the output as a comment
-        submit_grade_comments($id, $sid, 10, 'Output: '.$result['run_status']['output'], false);
+        $grade = round($passed/count($auto_judge_scenarios)*10);
+        submit_grade_comments($id, $sid, $grade, 'Tests passed: '$passed '/' count($auto_judge_scenarios), false);
         // End Auto-judge
         }
         
@@ -611,7 +628,29 @@ function new_assignment() {
         </tr>
          <tr>
           <th>Auto-judge:</th>
-          <td><input type='checkbox' id='auto_judge' name='auto_judge' value='1' checked='1' /></td>
+          <td><input type='checkbox' id='auto_judge' name='auto_judge' value='2' checked='1' />
+  <table>
+    <thead>
+      <tr>
+        <th>Input</th>
+        <th>Expected Output</th>
+        <th>Delete</th>
+      </tr>
+    </thead>
+    </tbody>
+      </tr>
+        <td><input type='text' name='autojudge_scenarios[0][input]'/></td>
+        <td><input type='text' name='autojudge_scenarios[0][input]'/></td>
+        <td><a href='#' class='autojudge_remove_scenario' style='display: none;'>X</a></td>
+      </tr>
+      </tr>
+        <td></td>
+        <td></td>
+        <td><input type='submit' value='Νέο σενάριο' id='autojudge_new_scenario' /></td>
+      </tr>
+    </tbody>
+  </table>
+  </td>
         </tr>        
         <tr id='assignees_tbl' style='display:none;'>
           <th class='left' valign='top'></th>
@@ -936,9 +975,9 @@ function delete_assignment($id) {
  */
 function purge_assignment_subs($id) {
 
-	global $tool_content, $workPath, $webDir, $langBack, $langDeleted, $langAssignmentSubsDeleted, $course_code, $course_id;
+  global $tool_content, $workPath, $webDir, $langBack, $langDeleted, $langAssignmentSubsDeleted, $course_code, $course_id;
         
-	$secret = work_secret($id);
+  $secret = work_secret($id);
         $row = Database::get()->querySingle("SELECT title,assign_to_specific FROM assignment WHERE course_id = ?d
                                         AND id = ?d", $course_id, $id);        
         if (Database::get()->query("DELETE FROM assignment_submit WHERE assignment_id = ?d", $id)->affectedRows > 0) {
@@ -1127,9 +1166,9 @@ function assignment_details($id, $row) {
               <ul id='opslist'>
               <li><a href='$_SERVER[SCRIPT_NAME]?course=$course_code&amp;id=$id&amp;choice=do_delete' onClick='return confirmation(\"" . $langConfirmDelete . "\");'>$langDelAssign</a></li>
                 <li><a href='$_SERVER[SCRIPT_NAME]?course=$course_code&amp;download=$id'>$langZipDownload</a></li>
-		<li><a href='$_SERVER[SCRIPT_NAME]?course=$course_code&amp;id=$id&amp;disp_results=true'>$langGraphResults</a></li><br>
+    <li><a href='$_SERVER[SCRIPT_NAME]?course=$course_code&amp;id=$id&amp;disp_results=true'>$langGraphResults</a></li><br>
                     <li><a href='$_SERVER[SCRIPT_NAME]?course=$course_code&amp;id=$id&amp;disp_non_submitted=true'>$m[WorkUserGroupNoSubmission]</a></li>
-		<li><a href='$_SERVER[SCRIPT_NAME]?course=$course_code&amp;id=$id&amp;choice=add'>$langAddGrade</a></li>
+    <li><a href='$_SERVER[SCRIPT_NAME]?course=$course_code&amp;id=$id&amp;choice=add'>$langAddGrade</a></li>
               </ul>
             </div>";
     }
@@ -1378,8 +1417,8 @@ function show_assignment($id, $display_graph_results = false) {
                             nice_format($row->grade_submission_date) . ")</i></div>";
                 }
                 $tool_content .= "<div style='padding-top: .5em;'><a href='$gradelink'><b>$label</b></a>
-				  <a href='$gradelink'><img src='$themeimg/$icon'></a>
-				  $comments
+          <a href='$gradelink'><img src='$themeimg/$icon'></a>
+          $comments
                                 </td>
                                 </tr>";
                 $i++;
@@ -1638,15 +1677,15 @@ function show_assignments() {
                 $deadline = $m['no_deadline'];
             }
             $tool_content .= "
-			  <td><img src='$themeimg/arrow.png' alt=''>
+        <td><img src='$themeimg/arrow.png' alt=''>
                               <a href='$_SERVER[SCRIPT_NAME]?course=$course_code&amp;id={$row->id}'";
             $tool_content .= ">";
             $tool_content .= q($row->title);
 
             $tool_content .= "</a></td>
-			  <td class='center'>$num_submitted</td>
-			  <td class='center'>$num_ungraded</td>
-			  <td class='center'>" . $deadline; 
+        <td class='center'>$num_submitted</td>
+        <td class='center'>$num_ungraded</td>
+        <td class='center'>" . $deadline; 
             if ($row->time > 0) {
                 $tool_content .= " (<span>$langDaysLeft" . format_time_duration($row->time) . ")</span>";
             } else if((int)$row->deadline){
@@ -1800,24 +1839,24 @@ function create_zip_index($path, $id, $online = FALSE) {
     fputs($fp, '
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=' . $charset . '">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=' . $charset . '">
                 <style type="text/css">
                 .sep td, th { border: 1px solid; }
                 td { border: none; }
                 table { border-collapse: collapse; border: 2px solid; }
                 .sep { border-top: 2px solid black; }
                 </style>
-	</head>
-	<body>
-		<table width="95%" class="tbl">
-			<tr>
-				<th>' . $m['username'] . '</th>
-				<th>' . $m['am'] . '</th>
-				<th>' . $m['filename'] . '</th>
-				<th>' . $m['sub_date'] . '</th>
-				<th>' . $m['grade'] . '</th>
-			</tr>');
+  </head>
+  <body>
+    <table width="95%" class="tbl">
+      <tr>
+        <th>' . $m['username'] . '</th>
+        <th>' . $m['am'] . '</th>
+        <th>' . $m['filename'] . '</th>
+        <th>' . $m['sub_date'] . '</th>
+        <th>' . $m['grade'] . '</th>
+      </tr>');
 
     $result = Database::get()->queryArray("SELECT a.uid, a.file_path, a.submission_date, a.grade, a.comments, a.grade_comments, a.group_id, b.deadline FROM assignment_submit a, assignment b WHERE a.assignment_id = ?d AND a.assignment_id = b.id ORDER BY a.id", $id);
 
@@ -1827,21 +1866,21 @@ function create_zip_index($path, $id, $online = FALSE) {
                 ("<a href='$filename'>" . htmlspecialchars($filename) . '</a>');
         $late_sub_text = ((int) $row->deadline && $row->submission_date > $row->deadline) ?  '<div style="color:red;">$m[late_submission]</div>' : '';
         fputs($fp, '
-			<tr class="sep">
-				<td>' . q(uid_to_name($row->uid)) . '</td>
-				<td>' . q(uid_to_am($row->uid)) . '</td>
-				<td align="center">' . $filelink . '</td>
-				<td align="center">' . $row->submission_date .$late_sub_text. '</td>
-				<td align="center">' . $row->grade . '</td>
-			</tr>');
+      <tr class="sep">
+        <td>' . q(uid_to_name($row->uid)) . '</td>
+        <td>' . q(uid_to_am($row->uid)) . '</td>
+        <td align="center">' . $filelink . '</td>
+        <td align="center">' . $row->submission_date .$late_sub_text. '</td>
+        <td align="center">' . $row->grade . '</td>
+      </tr>');
         if (trim($row->comments != '')) {
             fputs($fp, "
-			<tr><td colspan='6'><b>$m[comments]: " .
+      <tr><td colspan='6'><b>$m[comments]: " .
                     "</b>$row->comments</td></tr>");
         }
         if (trim($row->grade_comments != '')) {
             fputs($fp, "
-			<tr><td colspan='6'><b>$m[gradecomments]: " .
+      <tr><td colspan='6'><b>$m[gradecomments]: " .
                     "</b>$row->grade_comments</td></tr>");
         }
         if (!empty($row->group_id)) {
