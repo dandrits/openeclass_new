@@ -22,7 +22,7 @@
 $require_current_course = true;
 require_once '../../include/baseTheme.php';
 
-// Include the main TCPDF library 
+// Include the main TCPDF library
 require_once __DIR__.'/../../include/tcpdf/tcpdf_include.php';
 require_once __DIR__.'/../../include/tcpdf/tcpdf.php';
 
@@ -37,12 +37,12 @@ if (isset($_GET['assignment']) && isset($_GET['submission'])) {
     $sub_id = intval($_GET['submission']);
     $assign = get_assignment_details($as_id);
     $sub = get_assignment_submit_details($sub_id);
-    
+
     if($sub==null || $assign==null)
     {
         redirect_to_home_page('modules/work/index.php?course='.$course_code);
     }
-    
+
     $navigation[] = array("url" => "index.php?course=$course_code", "name" => $langWorks);
     $navigation[] = array("url" => "index.php?course=$course_code&amp;id=$as_id", "name" => q($assign->title));
 
@@ -55,7 +55,7 @@ if (isset($_GET['assignment']) && isset($_GET['submission'])) {
                 show_report($as_id, $sub_id, $assign, $sub, $auto_judge_scenarios, $auto_judge_scenarios_output);
                 draw($tool_content, 2);
             }else{
-                download_pdf_file($assign, $sub, $auto_judge_scenarios, $auto_judge_scenarios_output); 
+                download_pdf_file($assign, $sub, $auto_judge_scenarios, $auto_judge_scenarios_output);
             }
          }
          else{
@@ -139,7 +139,7 @@ function get_table_content($auto_judge_scenarios, $auto_judge_scenarios_output, 
     "isJsonString" => "είναι JSON string ",
     "isObject" => "είναι αντικείμενο",
 );
-   
+
     foreach($auto_judge_scenarios as $cur_senarios){
            if(!isset($cur_senarios['output']))// expected output disable
                $cur_senarios['output'] = "-";
@@ -159,7 +159,7 @@ function get_table_content($auto_judge_scenarios, $auto_judge_scenarios_output, 
 
 
 
-function download_pdf_file($assign, $sub, $auto_judge_scenarios, $auto_judge_scenarios_output){ 
+function download_pdf_file($assign, $sub, $auto_judge_scenarios, $auto_judge_scenarios_output){
     // create new PDF document
     $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 
@@ -280,7 +280,7 @@ function download_pdf_file($assign, $sub, $auto_judge_scenarios, $auto_judge_sce
     </table>';
 
     $pdf->writeHTML($report_details, true, false, true, false, '');
-    $pdf->Ln();     
+    $pdf->Ln();
     $pdf->writeHTML($report_table, true, false, true, false, '');
     $pdf->Output('auto_judge_report_'.q(uid_to_name($sub->uid)).'.pdf', 'D');
 }
