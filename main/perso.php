@@ -33,6 +33,8 @@ require_once 'include/lib/fileDisplayLib.inc.php';
 require_once 'include/lib/mediaresource.factory.php';
 require_once 'include/lib/multimediahelper.class.php';
 require_once 'main/personal_calendar/calendar_events.class.php';
+require_once 'modules/dropbox/class.mailbox.php';
+require_once 'modules/dropbox/class.msg.php';
 
 if ($_SESSION['status'] == USER_TEACHER) {
     $extra = "AND course.visible != " . COURSE_INACTIVE;
@@ -56,6 +58,8 @@ $_SESSION['courses'] = $courses;
 $_user['persoLastLogin'] = last_login($uid);
 $_user['lastLogin'] = str_replace('-', ' ', $_user['persoLastLogin']);
 
+$user_assignments = $user_announcements = $user_documents = $user_agenda = $user_forumPosts = '';
+
 //  Get user's course info
 $user_lesson_info = getUserLessonInfo($uid);
 //if user is registered to at least one lesson
@@ -71,6 +75,9 @@ if (count($lesson_ids) > 0) {
     // get user forum posts    
     $user_forumPosts = getUserForumPosts($lesson_ids);
 }
+
+// get user latest personal messages
+$user_messages = getUserMessages();
 
 // create array with content
 //BEGIN - Get user personal calendar
@@ -144,7 +151,7 @@ function getUserLessonInfo($uid) {
 
     //getting user's lesson info
     if ($myCourses) {
-        $lesson_content .= "<table id='portfolio_lessons' class='table-default'>";
+        $lesson_content .= "<table id='portfolio_lessons' class='table table-striped'>";
         $lesson_content .= "<thead style='display:none'><tr><th></th><th></th></tr></thead>";
         foreach ($myCourses as $data) {
             array_push($lesson_ids, $data->course_id);
@@ -152,7 +159,7 @@ function getUserLessonInfo($uid) {
 			  <td class='text-left'>
 			  <b><a href='${urlServer}courses/$data->code/'>" . q($data->title) . "</a></b><span class='smaller'>&nbsp;(" . q($data->public_code) . ")</span>
 			  <div class='smaller'>" . q($data->professor) . "</div></td>";
-            $lesson_content .= "<td class='text-center'>";
+            $lesson_content .= "<td class='text-center right-cell'>";
             if ($data->status == USER_STUDENT) {
                 $lesson_content .= icon('fa-sign-out', $langUnregCourse, "${urlServer}main/unregcours.php?cid=$data->course_id&amp;uid=$uid");
             } elseif ($data->status == USER_TEACHER) {
@@ -181,14 +188,19 @@ function getUserLessonInfo($uid) {
  * @param type $param
  * @return string
  */ 
-function getUserAnnouncements($lesson_id) {
+function getUserAnnouncements($lesson_id, $type = '') {
 
     global $urlAppend, $dateFormatLong;
-
+            
     $ann_content = '';
-    $last_month = strftime('%Y %m %d', strtotime('now -1 month'));
+    $last_month = strftime('%Y-%m-%d', strtotime('now -1 month'));
 
     $course_id_sql = implode(', ', array_fill(0, count($lesson_id), '?d'));
+    if ($type == 'more') {
+        $sql_append = '';
+    } else {
+        $sql_append = 'LIMIT 5';
+    }
     $q = Database::get()->queryArray("SELECT announcement.title,
                                              announcement.`date`,
                                              announcement.id,
@@ -202,7 +214,7 @@ function getUserAnnouncements($lesson_id) {
                                 AND announcement.`date` >= ?s
                                 AND course_module.module_id = ?d
                                 AND course_module.visible = 1
-                        ORDER BY announcement.`date` DESC LIMIT 5", $lesson_id, $last_month, MODULE_ID_ANNOUNCE);
+                        ORDER BY announcement.`date` DESC $sql_append", $lesson_id, $last_month, MODULE_ID_ANNOUNCE);
     if ($q) { // if announcements exist
         foreach ($q as $ann) {
             $course_title = q(ellipsize($ann->course_title, 30));
@@ -472,6 +484,44 @@ function getUserAssignments($lesson_id) {
         return "<div class='alert alert-warning'>$langNoAssignmentsExist</div>";
     }
 }
+
+/**
+ * @brief get user personal messages
+ * @global type $uid
+ * @global type $urlServer
+ * @global type $langFrom
+ * @global type $dateFormatLong
+ * @param type $lesson_id
+ * @return string
+ */
+function getUserMessages() {
+           
+    global $uid, $urlServer, $langFrom, $dateFormatLong;
+    
+    $message_content = '';    
+               
+    $mbox = new Mailbox($uid, 0);
+    $msgs = $mbox->getInboxMsgs('', 5);
+    foreach ($msgs as $message) {
+        if ($message->course_id > 0) {
+            $course_title = q(ellipsize(course_id_to_title($message->course_id), 30));
+        } else {
+            $course_title = '';
+        }
+        $message_date = claro_format_locale_date($dateFormatLong, $message->timestamp);
+        $message_content .= "<li class='list-item'>
+                            <span class='item-wholeline'>                                    
+                                <div class='text-title'>$langFrom ".display_user($message->author_id, false, false).":
+                                    <a href='{$urlServer}modules/dropbox/index.php?mid=$message->id'>" .q($message->subject)."</a>
+                                </div>                                    
+                                <div class='text-grey'>$course_title</div>
+                                <div>$message_date</div>
+                                </span>
+                            </li>";
+    }    
+    return $message_content;
+}
+
 
 /**
  *
