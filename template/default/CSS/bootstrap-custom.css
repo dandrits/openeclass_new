@@ -9453,36 +9453,91 @@ input[type="file"] {
   border-color: #ccc;
 }
 
-/* line 20, ../SASS/bootstrap-custom.scss */
+/* line 19, ../SASS/bootstrap-custom.scss */
+.popover-content {
+  padding: 9px 9px;
+}
+/* line 21, ../SASS/bootstrap-custom.scss */
+.popover-content .list-group {
+  margin-bottom: 0px;
+}
+
+/* line 25, ../SASS/bootstrap-custom.scss */
+.popover-content
 .affix {
   top: 40px;
 }
 
+/* line 30, ../SASS/bootstrap-custom.scss */
+.option-btn-cell .btn-group {
+  display: flex;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flex;
+}
+
+/* line 36, ../SASS/bootstrap-custom.scss */
+a.list-group-item.delete {
+  color: #CE6B6B;
+}
+
+/* line 39, ../SASS/bootstrap-custom.scss */
+a.list-group-item.delete:hover {
+  background-color: #CE6B6B;
+  color: white;
+}
+
 @media (min-width: 768px) {
-  /* line 24, ../SASS/bootstrap-custom.scss */
+  /* line 44, ../SASS/bootstrap-custom.scss */
   .affix {
     width: 20%;
   }
 }
+@media (max-width: 992px) {
+  /* line 49, ../SASS/bootstrap-custom.scss */
+  .float-menu {
+    position: absolute;
+    width: 225px;
+    left: -225px;
+    top: 0px !important;
+    height: 100%;
+  }
+
+  /* line 56, ../SASS/bootstrap-custom.scss */
+  #leftnav {
+    overflow: scroll;
+    z-index: 8888;
+  }
+
+  /* line 60, ../SASS/bootstrap-custom.scss */
+  .navbar-toggle {
+    display: block;
+  }
+}
 @media (min-width: 992px) {
-  /* line 29, ../SASS/bootstrap-custom.scss */
+  /* line 65, ../SASS/bootstrap-custom.scss */
   .affix {
     width: 18%;
   }
+
+  /* line 68, ../SASS/bootstrap-custom.scss */
+  .navbar-custom {
+    margin: 15px 15px 0px;
+  }
 }
 @media (min-width: 1200px) {
-  /* line 34, ../SASS/bootstrap-custom.scss */
+  /* line 73, ../SASS/bootstrap-custom.scss */
   .affix {
     width: 17%;
   }
 }
 @media (min-width: 1450px) {
-  /* line 39, ../SASS/bootstrap-custom.scss */
+  /* line 78, ../SASS/bootstrap-custom.scss */
   .affix {
     width: 12.4%;
   }
 }
-/* line 44, ../SASS/bootstrap-custom.scss */
+/* line 83, ../SASS/bootstrap-custom.scss */
 .bubble {
   position: relative;
   width: 100%;
@@ -9494,7 +9549,7 @@ input[type="file"] {
   border: #dddddd solid 2px;
 }
 
-/* line 56, ../SASS/bootstrap-custom.scss */
+/* line 95, ../SASS/bootstrap-custom.scss */
 .bubble:after {
   content: '';
   position: absolute;
@@ -9508,7 +9563,7 @@ input[type="file"] {
   top: 9px;
 }
 
-/* line 70, ../SASS/bootstrap-custom.scss */
+/* line 109, ../SASS/bootstrap-custom.scss */
 .bubble:before {
   content: '';
   position: absolute;
@@ -9522,28 +9577,52 @@ input[type="file"] {
   top: 8px;
 }
 
-/* line 95, ../SASS/bootstrap-custom.scss */
+/* line 134, ../SASS/bootstrap-custom.scss */
 .panel-action-btn-default > .panel-heading {
   padding: 0 0 0 20px;
 }
-/* line 98, ../SASS/bootstrap-custom.scss */
+/* line 137, ../SASS/bootstrap-custom.scss */
 .panel-action-btn-default > .panel-heading h3 {
   line-height: 45px;
 }
-/* line 101, ../SASS/bootstrap-custom.scss */
+/* line 140, ../SASS/bootstrap-custom.scss */
 .panel-action-btn-default > .panel-heading .opt-btn {
   background-color: whitesmoke;
 }
 
-/* line 108, ../SASS/bootstrap-custom.scss */
+/* line 147, ../SASS/bootstrap-custom.scss */
 .panel-action-btn-primary > .panel-heading {
   padding: 0 0 0 20px;
 }
-/* line 111, ../SASS/bootstrap-custom.scss */
+/* line 150, ../SASS/bootstrap-custom.scss */
 .panel-action-btn-primary > .panel-heading h3 {
   line-height: 45px;
 }
-/* line 114, ../SASS/bootstrap-custom.scss */
+/* line 153, ../SASS/bootstrap-custom.scss */
 .panel-action-btn-primary > .panel-heading .opt-btn {
   background-color: whitesmoke;
+}
+
+/* line 159, ../SASS/bootstrap-custom.scss */
+.navbar-nav .open .dropdown-menu {
+  position: absolute;
+  float: none;
+  width: auto;
+  margin-top: 0;
+  background-color: #ffffff;
+  border-left-color: rgba(0, 0, 0, 0.14902);
+  color: #000;
+  border-left-style: solid;
+  border-left-width: 1px;
+  border-right-color: rgba(0, 0, 0, 0.14902);
+  border-right-style: solid;
+  border-right-width: 1px;
+  border-top-color: rgba(0, 0, 0, 0.14902);
+  border-top-left-radius: 0px;
+  border-top-right-radius: 0px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  bottom: auto;
+  box-shadow: rgba(0, 0, 0, 0.172549) 0px 6px 12px 0px;
+  box-sizing: border-box;
 }

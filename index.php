@@ -37,9 +37,6 @@ require_once 'modules/auth/auth.inc.php';
 require_once 'include/lib/textLib.inc.php';
 require_once 'include/phpass/PasswordHash.php';
 
-// $homePage is used by baseTheme.php to parse correctly the breadcrumb
-$homePage = true;
-
 // unset system that records visitor only once by course for statistics
 require_once 'include/action.php';
 if (isset($dbname)) {
@@ -162,8 +159,7 @@ if ($uid AND !isset($_GET['logout'])) {
             <div class='col-md-12 remove-gutter'>
                 <div class='jumbotron jumbotron-login'>
                     <div class='row'>
-                        <div class='hidden-xs col-sm-7 col-md-7' style='position: static;'>
-                            <img class='graphic' src='$themeimg/indexlogo.png'/>
+                        <div class='hidden-xs hidden-sm col-sm-7 col-md-7 graphic'>
                         </div>                        
                         <form class='login-form col-xs-12 col-sm-7 col-md-5 col-lg-4 pull-right' action='$urlSecure' method='post'>
                             <h2>$langUserLogin</h2>

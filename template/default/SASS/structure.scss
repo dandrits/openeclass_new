@@ -23,10 +23,12 @@ body > .container{
 
 /* LEFTNAV - MAIN MENU, LOGO */
 #leftnav{
+    top: -53px;
     background: $color-background;
     padding: 0;
     .logo{
-        margin:2em 1em;a
+        //margin:2em 1em;
+        margin: 0.8em 0.8em 0px;
         img{margin:0 auto;}
     }
     .panel{
@@ -273,7 +275,6 @@ a.toggle-active{
 
             .title
             {
-
                 margin: 0;
                 padding: 2em 0em!important;
                 font-weight: 700;
@@ -284,72 +285,10 @@ a.toggle-active{
 
                 i.fa
                 {
-                    display: block;
+                    padding-right: 10px;
                     opacity:.9;
-                    font-size: 2.3em;
-
-                    margin-top: 0.4em;
+                    font-size: 16px;
                 }
-                .tricky
-                {
-
-                    margin-left:-100%;
-                    width: 200%;
-                    position: relative;
-                    height: 45px;
-                    @include transition(margin-left $transition-time linear);
-
-                    > div{        
-                        display: inline-block;
-                        width: 49%;
-                        height: 100%;
-                        position: relative;
-                        top: 0px;
-                        vertical-align: middle;
-                        padding: 0.5em 0em;
-
-                        @include transition(opacity 60ms linear);  
-                    }
-
-                    .icon{
-                        opacity: 1;
-                    }
-
-                    .description{
-                        font-weight: 400;
-                        padding:0.5em 1em;
-                        opacity: 0;
-                    }
-                }
-
-                &:hover:not(.ui-accordion-header-active){
-                    .tricky{
-                        margin-left: 0%;
-
-                        .description{
-                            opacity: .55;
-                        }
-
-                        .icon{
-                            opacity:0;
-                        }
-
-                    }
-
-                    .txt{
-                        color:$color-hover;
-                    }
-                }
-
-                &.ui-accordion-header-active{
-                    .tricky{
-                        margin-left: 0%;
-                        .description{
-                            opacity: .55;
-                        }
-                    }
-                }
-
             }
 
             li.outerpanel{
@@ -364,12 +303,6 @@ a.toggle-active{
                     padding:1em 0em;
                 }
 
-                textarea,input{
-                    width: 90%;
-                    margin: 0em auto 1em auto;
-                    display: block;
-                }
-
                 textarea{ 
                     min-height: 12em;
                 }
@@ -377,30 +310,6 @@ a.toggle-active{
                 button{
                     margin: 1.1em;
                     margin-top: 0em;
-                    font-size: 0.8em;
-                }
-
-                .goto{
-                    float: right;
-                    color: #7E7E7E;
-                    padding: 0.5em;
-                    margin-right: 0.5em;
-                }
-
-                .input-parent{
-                    position: relative;
-
-                    textarea,input{
-                        padding-left:2em;
-                    }
-
-                    .fa{
-                        position: absolute;
-                        top: 0.7em;
-                        left: 1.5em;
-                        z-index: 9;
-                        opacity: 0.2;
-                    }
                 }
             }
 
@@ -419,25 +328,57 @@ a.toggle-active{
                     cursor: pointer;
                 }
             }
-
+            .goto{
+                    display: inline-block;
+                    float: right;
+                    margin-right: 0.5em;
+                    font-size: 0.75em;
+                }
+                .goto:hover{
+                    text-decoration: none;
+                }
             .innerpanel{
                 margin-bottom:0px;
+                max-height: 200px;
+                overflow: scroll;
+                 @include border-radius(4px 4px 4px 4px);
 
-                .panel-body{
-                    background: #253447;
-                    border-top: none;
-                    color: rgba(255, 255, 255, 0.9);
-                }
                 .panel-heading{
                     margin: 0px;
                     padding: 0px;
 
-                    h4{
+                    &>div{
                         margin-left: 0px;
                         margin-right: 0px;
-                        border: none;
+                        border: 1px solid rgba(255, 255, 255, 0.1);
                         border-radius: 0px;
                     }
+                }
+                .panel-body{
+                    background: #253447;
+                    border-top: none;
+                    color: rgba(255, 255, 255, 0.9);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                }
+                a.lesson-title-link
+                {
+                    display: inline-block;
+                    height: 100%;
+                    width: 80%;
+                    line-height: 37px;
+                    padding-left: 10px;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+                i.lesson-title-caret
+                {
+                    display: inline-block;
+                    height: 100%;
+                    width: 20%;
+                    text-align: center;
+                    line-height: 37px;
+                    border-left: solid 1px #232c3a;
                 }
 
             }
@@ -455,25 +396,17 @@ a.toggle-active{
 }
 #sidebar
 {
-
     .side-list{
         background: #253447;
         border-top: none;
         color: rgba(255,255,255,.9);
-        margin: 0 16px;
-
-        &:last-of-type{
-            @include border-radius(0px 0px 4px 4px);
-        }
-
         .lesson-title{
             background: #344458;
             font-size: 0.85em;
             margin:0px;
-            padding: 10px 15px;
+            padding: 0px;
             cursor: pointer;
             position: relative;
-            outline: none;
             color: rgba(255,255,255,0.5);
             font-weight: 600;      
             margin: 0 16px;
@@ -489,16 +422,24 @@ a.toggle-active{
             &:last-of-type{
                 @include border-radius(0px 0px 4px 4px);
             }
-
-            &:hover{
+            & a.lesson-title-link:hover{
                 background: #48586D;
                 color: rgba(255,255,255,0.85);
+                text-decoration: none;
 
                 &:after{
                     color: rgba(255,255,255,.6);
                 }
             }
+            & i.lesson-title-caret:hover{
+                background: #48586D;
+                color: rgba(255,255,255,0.85);
+                text-decoration: none;
 
+                &:after{
+                    color: rgba(255,255,255,.6);
+                }
+            }
             &.ui-accordion-header-active{
                 border-bottom: none;
                 color: rgba(255,255,255,1);
@@ -513,7 +454,6 @@ a.toggle-active{
                 }
             }
         }
-
         ul{
             font-size: 0.75em;
 
@@ -521,26 +461,20 @@ a.toggle-active{
                 padding: 5px 0em;          
             }
         }
-
         .lesson-id{
             opacity: 0.5;
             font-size:0.85em;
             font-weight:700;
         }
-
         .lesson-professor{
             font-weight: 600;
             padding-top:0px;
         }
-
         .lesson-notifications{
-
             margin-top:1em;
-
             .item{
                 margin-right:1.5em;
                 position: relative;
-
                 .count{
                     position: absolute;
                     left: 0.8em;
@@ -556,7 +490,6 @@ a.toggle-active{
                     //border: 2px solid #253447;
                     @include border-radius(0.75em);
                 }
-
                 .fa{
                     font-size: 1.2em;
                     color: rgba(255,255,255,.8);
@@ -665,15 +598,11 @@ body.page-login h1{
   background: -ms-radial-gradient(30% 60%, closest-corner, #009BCF, #025694);
 
   .graphic{
-    position: absolute;
-    z-index: 9;
-
-    width: 77%;
-    max-width:100%;
-    
-    bottom: 1.5rem;
-    height: 90%;
-    width: auto; 
+    min-height:250px;
+    background-image: url('../img/indexlogo.png');
+    background-repeat: no-repeat;
+    background-position:20%;
+    background-size: 353px;
   }
 }
 
@@ -829,20 +758,6 @@ form.login-form{
 /* MEDIA QUERIES -------------------------------------------------------------------*/
 
 
-@media only screen and (min-width: 768px) and (max-width : 992px) {
-
-  .jumbotron.jumbotron-login img.graphic{
-    bottom: -3.5rem;
-    
-  }
-
-}
-
-
-
-
-
-
 
 /* No breakpoints bellow 1366 or smth */
 
@@ -870,23 +785,17 @@ form.login-form{
     padding:0;
     margin:0;
   }
-
-  #leftnav .panel a{
-    font-size: 1.5em;
+#leftnav .panel a.list-group-item,
+  #leftnav .panel .panel-heading .panel-title{
+    text-align: left;
   }
-
   .navbar .navbar-nav > li a{
     padding: 15px 0.5em;    
   }
 
-  #leftnav .panel a.list-group-item{
-      padding:0.5em 0.8em;
-  }
-
   #main-content,
-  #leftnav .panel a.list-group-item,
   #header.navbar .navbar-nav > li:last-child > a,
-  .navbar-default{
+  .navbar-default, .footer{
     border-radius: 0px!important;
   }
 }

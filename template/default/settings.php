@@ -33,19 +33,26 @@ $theme_settings = array(
     ),
 );
 
-function template_callback($template, $menuTypeID)
+function template_callback($template, $menuTypeID, $embed)
 {
-    global $uid, $session, $native_language_names_init, $course_id, $professor, $modules, $admin_modules, $theme_settings;
+    global $uid, $session, $native_language_names_init, $course_id, $professor,
+           $modules, $admin_modules, $theme_settings, $user_messages;
+
     if ($uid) {
-        $template->set_block('mainBlock', 'LoggedOutBlock', 'delete');
+        if (!$embed) {
+            $template->set_block('mainBlock', 'LoggedOutBlock', 'delete');
+        }
         $template->set_block('mainBlock', 'sideBarCourseBlock', 'sideBarCourse');
         $template->set_block('sideBarCourseBlock', 'sideBarCourseNotifyBlock', 'sideBarCourseNotify');
+        $template->set_block('mainBlock', 'sideBarMyMessages');
+        
+        $template->set_var('myMessagesList', $user_messages);
+        
         // FIXME: smarter selection of courses for sidebar
         Database::get()->queryFunc("SELECT id, code, title, prof_names, public_code
             FROM course, course_user
             WHERE course.id = course_id AND user_id = ?d
-            ORDER BY reg_date DESC
-            LIMIT 5", function ($c) use ($template, $modules, $admin_modules, $theme_settings) {
+            ORDER BY reg_date DESC", function ($c) use ($template, $modules, $admin_modules, $theme_settings) {
                 global $urlAppend;
                 static $counter = 1;
 
@@ -75,10 +82,12 @@ function template_callback($template, $menuTypeID)
         $template->set_block('mainBlock', 'LoggedInBlock', 'delete');
     }
 
-    if (!$course_id or !isset($professor) or !$professor) {
-        $template->set_block('mainBlock', 'professorBlock', 'delete');
-    } else {
-        $template->set_var('PROFESSOR', q($professor));
+    if (!$embed) {
+        if (!$course_id or !isset($professor) or !$professor) {
+            $template->set_block('mainBlock', 'professorBlock', 'delete');
+        } else {
+            $template->set_var('PROFESSOR', q($professor));
+        }
     }
 
     if ($menuTypeID != 2) {

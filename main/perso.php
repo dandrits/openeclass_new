@@ -115,6 +115,7 @@ $perso_tool_content = array(
  * @return string
  */
 function getUserLessonInfo($uid) {
+    global $teacher_courses_count, $student_courses_count;
     global $session, $lesson_ids, $urlServer, $langUnregCourse, $langAdm;
     global $langNotEnrolledToLessons, $langWelcomeProfPerso, $langWelcomeStudPerso, $langWelcomeSelect;
 
@@ -122,34 +123,36 @@ function getUserLessonInfo($uid) {
     $lesson_ids = array();
     if ($session->status == USER_TEACHER) {
         $myCourses = Database::get()->queryArray("SELECT course.id course_id,
-                                course.code code,
-                                course.public_code,
-	                        course.title title,
-                                course.prof_names professor,
-	                        course.lang,
-	                        course_user.status status	                        
-	                   FROM course, course_user, user
-                          WHERE course.id = course_user.course_id AND
-	                        course_user.user_id = ?d AND
-	                        user.id = ?d
+                             course.code code,
+                             course.public_code,
+                             course.title title,
+                             course.prof_names professor,
+                             course.lang,
+                             course_user.status status	                        
+                       FROM course, course_user, user
+                       WHERE course.id = course_user.course_id AND
+                             course_user.user_id = ?d AND
+                             user.id = ?d
                        ORDER BY course.title, course.prof_names", $uid, $uid);
     } else {
         $myCourses = Database::get()->queryArray("SELECT course.id course_id,
-                                course.code code,
-                                course.public_code,
-                                course.title title,
-                                course.prof_names professor,
-                                course.lang,
-                                course_user.status status                                
-                           FROM course, course_user, user
-                          WHERE course.id = course_user.course_id AND
-                                course_user.user_id = ?d AND
-                                user.id = ?d AND
-                                course.visible != ?d
+                             course.code code,
+                             course.public_code,
+                             course.title title,
+                             course.prof_names professor,
+                             course.lang,
+                             course_user.status status                                
+                       FROM course, course_user, user
+                       WHERE course.id = course_user.course_id AND
+                             course_user.user_id = ?d AND
+                             user.id = ?d AND
+                             course.visible != ?d
                        ORDER BY course.title, course.prof_names", $uid, $uid, COURSE_INACTIVE);
     }
 
     //getting user's lesson info
+    $teacher_courses_count = 0;
+    $student_courses_count = 0;
     if ($myCourses) {
         $lesson_content .= "<table id='portfolio_lessons' class='table table-striped'>";
         $lesson_content .= "<thead style='display:none'><tr><th></th><th></th></tr></thead>";
@@ -157,13 +160,15 @@ function getUserLessonInfo($uid) {
             array_push($lesson_ids, $data->course_id);
             $lesson_content .= "<tr>
 			  <td class='text-left'>
-			  <b><a href='${urlServer}courses/$data->code/'>" . q($data->title) . "</a></b><span class='smaller'>&nbsp;(" . q($data->public_code) . ")</span>
+			  <b><a href='${urlServer}courses/$data->code/'>" . q(ellipsize($data->title, 64)) . "</a></b><span class='smaller'>&nbsp;(" . q($data->public_code) . ")</span>
 			  <div class='smaller'>" . q($data->professor) . "</div></td>";
             $lesson_content .= "<td class='text-center right-cell'>";
             if ($data->status == USER_STUDENT) {
                 $lesson_content .= icon('fa-sign-out', $langUnregCourse, "${urlServer}main/unregcours.php?cid=$data->course_id&amp;uid=$uid");
+                $student_courses_count++;
             } elseif ($data->status == USER_TEACHER) {
                 $lesson_content .= icon('fa-wrench', $langAdm, "${urlServer}modules/course_info/?from_home=true&amp;course=" . $data->code);
+                $teacher_courses_count++;
             }
             $lesson_content .= "</td></tr>";
         }

@@ -33,8 +33,7 @@ require_once 'modules/search/indexer.class.php';
 require_once 'config.php';
 require_once 'functions.php';
 
-
-
+$toolName = $langForums;
 if (isset($_GET['forum'])) {
     $forum = intval($_GET['forum']);
 } else {
@@ -55,7 +54,7 @@ $forum_id = $myrow->id;
 $is_member = false;
 $group_id = init_forum_group_info($forum_id);
 
-$nameTools = $langNewTopic;
+$pageName = $langNewTopic;
 $navigation[] = array('url' => "index.php?course=$course_code", 'name' => $langForums);
 $navigation[] = array('url' => "viewforum.php?course=$course_code&amp;forum=$forum_id", 'name' => q($forum_name));
 

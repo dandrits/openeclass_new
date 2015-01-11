@@ -106,22 +106,25 @@ if(!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
                     array('title' => $langModify,
                           'icon' => 'fa-edit',
                           'url' => "$_SERVER[SCRIPT_NAME]?course=$course_code&amp;modify=$myrow->id"),
-                    array('title' => $langDelete,
-                          'class' => 'delete',
-                          'icon' => 'fa-times',
-                          'icon-class' => 'delete_btn'),
                     array('title' => $langVisible,
                           'icon' => $vis_icon,
                           'icon-class' => 'vis_btn',
-                          'icon-extra' => "data-vis='$visible'"),
+                          'icon-extra' => "data-vis='$visible' data-id='$myrow->id'"),
+                    array('title' => $langDelete,
+                          'class' => 'delete',
+                          'icon' => 'fa-times',
+                          'icon-class' => 'delete_btn',
+                          'icon-extra' => "data-id='$myrow->id'"),                    
                     array('title' => $langMove,
+                          'level' => 'primary',
                           'icon' => 'fa-arrow-up',
-                          'url' => "$_SERVER[SCRIPT_NAME]?course=$course_code&amp;up=$myrow->id",
-                          'show' => $iterator != 1 || $offset > 0),
+                          'disabled' => !($iterator != 1 || $offset > 0),
+                          'url' => "$_SERVER[SCRIPT_NAME]?course=$course_code&amp;up=$myrow->id"),
                     array('title' => $langMove,
+                          'level' => 'primary',
+                          'disabled' => $offset + $iterator >= $all_announc->total,
                           'icon' => 'fa-arrow-down',
-                          'url' => "$_SERVER[SCRIPT_NAME]?course=$course_code&amp;down=$myrow->id",
-                          'show' => $offset + $iterator < $all_announc->total))));
+                          'url' => "$_SERVER[SCRIPT_NAME]?course=$course_code&amp;down=$myrow->id"))));
             $iterator++;
         }
     } else {
@@ -155,7 +158,7 @@ $head_content .= "<script type='text/javascript'>
                    [10, 15, 20, '$langAllOfThem'] // change per page values here
                ],
                 'fnDrawCallback': function( oSettings ) {
-                    animate_btn();
+                    popover_init();
 },
                 'sPaginationType': 'full_numbers',
                 'bSort': false,
@@ -178,7 +181,7 @@ $head_content .= "<script type='text/javascript'>
             }).fnSetFilteringDelay(1000);
             $(document).on( 'click','.delete_btn', function (e) {
                 e.preventDefault();
-                var row_id = $(this).closest('tr').attr('id');
+                var row_id = $(this).data('id');
                 bootbox.confirm('$langSureToDelAnnounce', function(result) {
                     if(result) {                       
                         $.ajax({
@@ -217,7 +220,7 @@ $head_content .= "<script type='text/javascript'>
             $(document).on( 'click','.vis_btn', function (g) {
                 g.preventDefault();
                 var vis = $(this).data('vis');
-                var row_id = $(this).closest('tr').attr('id');
+                var row_id = $(this).data('id');
                 $.ajax({
                   type: 'POST',
                   url: '',
@@ -251,7 +254,7 @@ $head_content .= "<script type='text/javascript'>
 ModalBoxHelper::loadModalBox();
 
 $public_code = course_id_to_public_code($course_id);
-$nameTools = $langAnnouncements;
+$toolName = $langAnnouncements;
 
 if (isset($_GET['an_id'])) {
     (!$is_editor)? $student_sql = "AND visible = '1' AND start_display<=CURDATE() AND stop_display>=CURDATE()" : $student_sql = "";
@@ -273,7 +276,7 @@ if ($is_editor) {
     $sortDirection = "ASC";
   }
 
-        $thisAnnouncementOrderFound = false;
+  $thisAnnouncementOrderFound = false;
   if (isset($thisAnnouncementId) && $thisAnnouncementId && isset($sortDirection) && $sortDirection) {
             $ids = Database::get()->queryArray("SELECT id, `order` FROM announcement
                                            WHERE course_id = ?d
@@ -369,7 +372,7 @@ if ($is_editor) {
             $emailContent = "$professorMessage: " . q($_SESSION['givenname']) . " " . q($_SESSION['surname']) . "<br>\n<br>\n" .
                     q($_POST['antitle']) .
                     "<br>\n<br>\n" .
-                    q($_POST['newContent']);
+                    $_POST['newContent'];
             $emailSubject = "$professorMessage ($public_code - " . q($title) . " - $langAnnouncement)";
             // select students email list
             $countEmail = 0;
@@ -422,9 +425,9 @@ if ($is_editor) {
     if ($displayForm && (isset($_GET['addAnnounce']) or isset($_GET['modify']))) {
         
         if (isset($_GET['modify'])) {
-            $langAdd = $nameTools = $langModifAnn;
+            $langAdd = $pageName = $langModifAnn;
         } else {
-            $nameTools = $langAddAnn;
+            $pageName = $langAddAnn;
         }
         $navigation[] = array("url" => "index.php?course=$course_code", "name" => $langAnnouncements);
         
@@ -454,8 +457,8 @@ if ($is_editor) {
                 array('title' => $langBack,
                       'url' => "$_SERVER[SCRIPT_NAME]?course=$course_code",
                       'icon' => 'fa-reply',
-                      'level' => 'primary-label')));
-    $tool_content .= "<div class='form-wrapper'>";
+                      'level' => 'primary-label')));    
+    $tool_content .= "<div class='form-wrapper'>";   
     $tool_content .= "<form class='form-horizontal' role='form' method='post' action='$_SERVER[SCRIPT_NAME]?course=".$course_code."' onsubmit=\"return checkrequired(this, 'antitle');\">
         <fieldset>
         <div class='form-group'>
@@ -523,7 +526,7 @@ if ($is_editor) {
 
     /* display announcements */
     if (isset($_GET['an_id'])) {
-        $nameTools = $row->title;
+        $pageName = $row->title;
         $navigation[] = array("url" => "$_SERVER[SCRIPT_NAME]?course=$course_code", "name" => $langAnnouncements);
         $tool_content .= $row->content;
     }

@@ -195,6 +195,11 @@ $langCourseDelConfirm2 = "are you sure you want to delete course with code";
 $langNoticeDel = "NOTE: Course deletion will also unregister " . $langsStudents . "from this course, along with course faculty correspondence snd course material.";
 $langCourseEdit = "Course Edit";
 $langCourseInfo = "Course Information";
+$langCourseImage = "Course Image";
+$langCourseLayout = "Layout";
+$langCourseLayout1 = "2 Columns (default)";
+$langCourseLayout2 = "2 Columns, No Image";
+$langCourseLayout3 = "Full Width";
 $langQuota = "Course Quota Boundaries";
 $langCourseStatus = "Course Status";
 $langCurrentStatus = "Current state";
@@ -482,6 +487,7 @@ The content of Electronic Courses hosted on the Open eClass platform, as well as
 all copyrights of this content, belongs to the authors of the courses and
 GUnet claims no rights on it. For every use or republication of course
 content, please contact the persons in charge of the respective course.';
+$langUsageTerms = 'Terms of Usage';
 $langCourseProgram = "Course Description";
 $langThisCourseDescriptionIsEmpty = "This course is presently not described";
 $langEditCourseProgram = "Create and edit";
@@ -504,6 +510,7 @@ $langIdentity = "About";
 $langCourseS = "course";
 $langCourseIden = "Course Info";
 $langBackupCourse = "Archive this course";
+$langCloneCourse = "Clone this course";
 $langModifInfo = "Course Admin";
 $langModifDone = "The information has been modified";
 $langHome = "Back to Home Page";
@@ -609,6 +616,7 @@ $langAddPageHome = "Upload Webpage";
 $langLinkSite = "Link to a site";
 $langModifyInfo = "Course Admin";
 $langDropBox = "Messages";
+$langMyDropBox = "My messages";
 $langLearnPath = "Learning Path";
 $langWiki = "Wiki";
 $langToolManagement = "Tool Management";
@@ -945,6 +953,9 @@ $langExerciseScores1 = "HTML";
 $langExerciseScores2 = "Percentages";
 $langExerciseScores3 = "CSV";
 $langNotRecorded = "Not recorded";
+$langImportQTI = "IMS QTI Import";
+$langExportQTI = "IMS QTI Export";
+$langIMSQTIUploadFile = "Locate IMS QTI file on your computer";
 $langSubTitle = "<br><strong>Tip: </strong>If you want to add a link to a page,
 		go to that page, cut and paste its address in the
 		URL bar on the top of your browser and insert it into the \"link\" field below.<br><br>";
@@ -1127,8 +1138,9 @@ $langMyCoursesProf = "My courses (" . $langsTeachers . ")";
 $langMyCoursesUser = "My registered courses (" . $langStudent . ")";
 $langNoCourses = "There are no courses";
 $langCourseCreate = "Create Course";
-$langMyAgenda = "My Calendar";
+$langMyAgenda = "My calendar";
 $langMyStats = "User Statistics";
+$langCompactProfile = "Brief Profile";
 $langMyAnnouncements = "My Announcements";
 $langWelcome = "courses are freely available below. Other  courses require
 a username and a password, which you can obtain by clicking on 'registration'. " . $langTeachers . "
@@ -1446,6 +1458,7 @@ $langYourBestScore = "Your best performance";
 $lang_enroll = "Enrol";
 $langimportLearningPath = "Import a learning path";
 $langScormErrorExport = "Error exporting SCORM package";
+$langLPViewerToggleLeftTOC = "Toggle table of contents";
 $langActiveTools = "Active tools";
 $langAdministrationTools = "Administration tools";
 $langAdministratorTools = "Administrator tools";
@@ -2371,7 +2384,7 @@ $langIs = "is";
 $langLastname = "Last name";
 $langLegendRequiredFields = "<span class=\"required\">*</span> denotes required field";
 $langMemorizeYourPassord = "Memorize them, you will use them the next time you will enter to this site.";
-$langMyProfile = "Μy Profile";
+$langMyProfile = "Μy profile";
 $langModifyProfile = "Modify my Profile";
 $langOfficialCode = "Administrative code";
 $langOneResp = "One of the course administrators";
@@ -2798,6 +2811,10 @@ $langUserProfile = 'User profile';
 $langEditProfile = 'Edit';
 $langStatus = "Status";
 $langProfileMemberSince = 'Member since';
+$langSumCoursesEnrolled = "Courses i am enrolled";
+$langSumCoursesSupport = "Courses i support";
+$langProfileLastVisit = "Last visit";
+$langProfileQuickPassword = "Change Password";
 $langProfileSendMail = 'Send private message';
 $langProfileNotAvailable = 'Not availabele';
 $langProfilePersInfo = 'Personal Info';
@@ -3387,6 +3404,7 @@ $langPersonalEvent = "Personal event";
 $langSelectFromMenu = "Select...";
 $langSureToDelNote = "Are you sure about deleting this note?";
 $langSureToDelNoteAll = "Are you sure about deleting all your notes?";
+$langNoteSaved = "Submitted successfully";
 
 /* * ******************************************
   Personal calendar
@@ -3520,9 +3538,24 @@ $langBgImg = "Background Image";
 $langRepeatedImg = 'Repeated Image';
 $langStretchedImg = 'Stretched Image';
 $langNavSettings = 'Navigation Settings';
+$langSaveAs = 'Save as ...';
+$langLoginBgGradient = "Login screen background gradient";
+$langLoginImg = "Login screen image";
+$langThemeOptionsName = "Theme Options Name";
+
 $langFormErrors = 'Form contains errors. Please correct and resubmit form.';
 /* * ***********************************************************
  * Other
  * ************************************************************ */
 $langMoreOptions = 'More options';
 $langLessOptions = 'Less options';
+
+$langMyCoursesSide = 'My Courses';
+$langMyMessagesSide = 'My Messages';
+$langQuickNotesSide = 'Quick Note';
+$langMyStats = 'My statistics';
+
+$langAgendaDueDay = "Due day";
+$langAgendaCourseEvent = "Course event";
+$langAgendaPersonalEvent = "Pers. event";
+$langAgendaSystemEvent = "System event";

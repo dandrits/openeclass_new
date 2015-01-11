@@ -171,7 +171,7 @@ $head_content .= <<<hContent
 </script>
 hContent;
 
-$nameTools = $langCourseInfo;
+$toolName = $langCourseInfo;
 
 // if the course is opencourses certified, disable visibility choice in form
 $isOpenCourseCertified = ($creview = Database::get()->querySingle("SELECT is_certified FROM course_review WHERE course_id = ?d", $course_id)) ? $creview->is_certified : false;
@@ -372,6 +372,10 @@ if (isset($_POST['submit'])) {
                     'url' => "archive_course.php?course=$course_code",
                     'icon' => 'fa-archive',
                     'level' => 'primary-label'),
+                array('title' => $langCloneCourse,
+                    'url' => "clone_course.php?course=$course_code",
+                    'icon' => 'fa-archive',
+                    'level' => 'primary'),
                 array('title' => $langRefreshCourse,
                     'url' => "refresh_course.php?course=$course_code",
                     'icon' => 'fa-refresh',

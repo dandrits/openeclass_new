@@ -15,20 +15,59 @@ input[type="file"] {
     background-image: linear-gradient(to bottom,#fff 0,#e0e0e0 100%);
     border-color: #ccc;
 }
-
+// Action Button fix
+.popover-content {
+    padding: 9px 9px;
+    .list-group {
+        margin-bottom: 0px;
+    }
+}
+.popover-content
 // Affix styles
 .affix {
     top: 40px;
+}
+.option-btn-cell .btn-group {
+  display: flex;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flex;    
+}
+a.list-group-item.delete{
+    color: #CE6B6B;
+}
+a.list-group-item.delete:hover{
+    background-color: #CE6B6B;
+    color: white;
 }
 @media(min-width: $screen-tablet){
   .affix {
     width: 20%;
   }     
 }
+@media(max-width: $screen-desktop){
+   .float-menu {
+       position: absolute;
+       width: 225px;
+       left: -225px;
+       top: 0px !important;
+       height: 100%;
+  }
+  #leftnav{
+      overflow: scroll;
+      z-index: 8888;
+  }
+  .navbar-toggle{
+      display: block;
+  }
+}
 @media(min-width: $screen-desktop){
    .affix {
     width: 18%;
-  }   
+  }
+  .navbar-custom{
+    margin: 15px 15px 0px;
+}
 }
 @media(min-width: $screen-lg-desktop){
    .affix {
@@ -116,3 +155,26 @@ top: 8px;
         }
     }
 }
+
+.navbar-nav .open .dropdown-menu {
+        position: absolute;
+        float: none;
+        width: auto;
+        margin-top: 0;
+        background-color:#ffffff;
+        border-left-color: rgba(0, 0, 0, 0.14902);
+        color: #000;
+border-left-style: solid;
+border-left-width: 1px;
+border-right-color: rgba(0, 0, 0, 0.14902);
+border-right-style: solid;
+border-right-width: 1px;
+border-top-color: rgba(0, 0, 0, 0.14902);
+border-top-left-radius: 0px;
+border-top-right-radius: 0px;
+border-top-style: solid;
+border-top-width: 1px;
+bottom: auto;
+box-shadow: rgba(0, 0, 0, 0.172549) 0px 6px 12px 0px;
+box-sizing: border-box;
+    }
