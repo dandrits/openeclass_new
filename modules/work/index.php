@@ -583,6 +583,19 @@ function submit_work($id, $on_behalf_of = null) {
     $nav[] = array('url' => "$_SERVER[SCRIPT_NAME]?id=$id", 'name' => $title);
 
     if ($submit_ok) {
+	// Handle $_POST uploaded files
+		if(isset($_POST['userfile']) && $_POST['userfile'] != '' && !isset($_FILES['userfile'])) {
+            $utmpfile = tmpfile();
+            $umetaDatas = stream_get_meta_data($utmpfile);
+            fwrite($utmpfile, $_POST['userfile']);
+            $_FILES['userfile']["name"] = uniqid().'.'.$langExt[$lang];
+            $_FILES['userfile']["type"] = 'application/force-download';
+            $_FILES['userfile']["tmp_name"] = $umetaDatas['uri'];
+            $_FILES['userfile']["error"] = 0;
+            $_FILES['userfile']["size"] = strlen($_POST['userfile']);
+            unset($_POST['userfile']);
+        }
+        // End handle $_POST uploaded files
         if ($group_sub) {
             $group_id = isset($_POST['group_id']) ? intval($_POST['group_id']) : -1;
             $gids = user_group_info($on_behalf_of ? null : $user_id, $course_id);
@@ -1629,7 +1642,7 @@ function show_student_assignment($id) {
 
 function show_submission_form($id, $user_group_info, $on_behalf_of = false) {
     global $tool_content, $m, $langWorkFile, $langSendFile, $langSubmit, $uid, $langNotice3, $gid, $is_member,
-    $urlAppend, $langGroupSpaceLink, $langOnBehalfOf, $course_code;
+    $urlAppend, $langGroupSpaceLink, $langOnBehalfOf, $course_code, $langWorkSyntax, $langWorkchoice;
 
     $group_select_hidden_input = $group_select_form = '';
     $is_group_assignment = is_group_assignment($id);
@@ -1709,13 +1722,35 @@ function show_submission_form($id, $user_group_info, $on_behalf_of = false) {
                         <input type='hidden' name='id' value='$id' />$group_select_hidden_input
                         <fieldset>
                         $group_select_form
-                        <div class='form-group'>
-                            <label for='userfile' class='col-sm-2 control-label'>$langWorkFile:</label>
-                            <div class='col-sm-10'>
-                              <input type='file'  name='userfile' id='userfile'>
-                            </div>
+                       <div class='form-group'>
+				<label for='userfile' class='col-sm-2 control-label'>$langWorkchoice:</label>
+            			<form class='form-horizontal' role='form' enctype='multipart/form-data' action='$_SERVER[SCRIPT_NAME]?course=$course_code' method='post'>
+					<input type='radio' name='epilogi' value='upload'>$langWorkFile<br>
+					<input type='radio' name='epilogi' value='syntax'>$langWorkSyntax<br>
+					<div class='col-sm-10 col-sm-offset-2'>
+						<input class='btn btn-primary' type='submit' value='$langSubmit' name='choice' />
+					</div>
+				</form>
+			</div>
+			<div class='form-group'>
+			<script src='../../js/ckeditor/ckeditor.js'></script>";
+			/*Choice between file upload and syntax code*/
+				if((isset($_POST['epilogi']))&&($_POST['epilogi']=='syntax')){
+					$tool_content .= "<label for='userfile' class='col-sm-2 control-label'>$langWorkSyntax:</label>
+				<div class='col-sm-10'><textarea name='userfile' id='userfile' rows='5' cols='55'></textarea><script>CKEDITOR.replace( 'userfile',{extraPlugins: 'codemirror'} );
+            </script></div>";//ckeditor+codemirror plugin
+					$_SESSION['epilogi']=$_POST['epilogi'];
+				}
+				elseif((isset($_POST['epilogi']))&&($_POST['epilogi']=='upload')){
+					$tool_content .= "
+					<label for='userfile' class='col-sm-2 control-label'>$langWorkFile:</label>        
+		                	<input type='file'  name='userfile' id='userfile'>";
+				}
+				else
+					Session::Messages($m['NoneWorkMethod'], 'alert-danger');
+			$tool_content .="
                         </div>
-                        <div class='form-group'>
+			<div class='form-group'>
                             <label for='stud_comments' class='col-sm-2 control-label'>$m[comments]:</label>
                             <div class='col-sm-10'>
                               <textarea name='stud_comments' id='stud_comments' rows='5' cols='55'></textarea>
